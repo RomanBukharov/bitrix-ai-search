@@ -1,0 +1,6 @@
+.env
+venv/
+__pycache__/
+*.db
+bot_state.json
+raw_response.json
