@@ -4,6 +4,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from dotenv import load_dotenv
 from database import init_db, init_subscriptions_table, add_subscription, get_all_subscriptions
+from contextlib import asynccontextmanager
 
 load_dotenv()
 
@@ -11,7 +12,15 @@ WEBHOOK_URL = os.getenv("BITRIX_WEBHOOK_URL")
 BOT_ID = int(os.getenv("BITRIX_BOT_ID"))
 CLIENT_ID = os.getenv("BITRIX_BOT_CLIENT_ID")
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Зачем: выполняется при старте сервера — создаём таблицы в БД"""
+    init_db()
+    init_subscriptions_table()
+    yield
+
+app = FastAPI(lifespan=lifespan)
 
 def send_message(user_id, text, dialog_id=None, chat_id=None):
     url = f"{WEBHOOK_URL}imbot.message.add"
