@@ -14,12 +14,11 @@ CLIENT_ID = os.getenv("BITRIX_BOT_CLIENT_ID")
 app = FastAPI()
 
 def send_message(user_id, text, dialog_id=None, chat_id=None):
-    """Отправляем сообщение от имени бота в правильный чат"""
     url = f"{WEBHOOK_URL}imbot.message.add"
     params = {
         "BOT_ID": BOT_ID,
         "CLIENT_ID": CLIENT_ID,
-        "DIALOG_ID": dialog_id or BOT_ID,
+        "DIALOG_ID": f"chat{chat_id}" if chat_id else BOT_ID,  # используем chat_id
         "MESSAGE": text
     }
     print(f"  📤 Отправляем в DIALOG_ID={params['DIALOG_ID']}")
