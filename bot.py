@@ -6,18 +6,39 @@ from dotenv import load_dotenv
 from database import init_db, init_subscriptions_table, add_subscription, get_all_subscriptions
 from contextlib import asynccontextmanager
 
+import threading
+from worker import check_and_notify
+import time
+
 load_dotenv()
 
 WEBHOOK_URL = os.getenv("BITRIX_WEBHOOK_URL")
 BOT_ID = int(os.getenv("BITRIX_BOT_ID"))
 CLIENT_ID = os.getenv("BITRIX_BOT_CLIENT_ID")
 
+def run_worker():
+    """Зачем: запускаем мониторинг в фоновом потоке параллельно с веб-сервером"""
+    init_db()
+    init_subscriptions_table()
+    print("👀 Worker запущен в фоне")
+    while True:
+        try:
+            print("🔄 Проверяем новые сообщения...")
+            check_and_notify()
+        except Exception as e:
+            print(f"⚠️ Ошибка worker: {e}")
+        time.sleep(60)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Зачем: выполняется при старте сервера — создаём таблицы в БД"""
+    """При старте сервера — создаём БД и запускаем фоновый мониторинг"""
     init_db()
     init_subscriptions_table()
+    
+    # Запускаем worker в отдельном потоке
+    worker_thread = threading.Thread(target=run_worker, daemon=True)
+    worker_thread.start()
+    
     yield
 
 app = FastAPI(lifespan=lifespan)
