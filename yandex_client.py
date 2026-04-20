@@ -7,8 +7,8 @@ load_dotenv()
 API_KEY = os.getenv("YANDEX_API_KEY")
 FOLDER_ID = os.getenv("YANDEX_FOLDER_ID")
 
-def ask_yandex_gpt(prompt):
-    """Отправляем запрос к YandexGPT и возвращаем текст ответа"""
+def ask_yandex_gpt_raw(prompt):
+    """Отправляем запрос и возвращаем сырой JSON ответ"""
     url = "https://llm.api.cloud.yandex.net/foundationModels/v1/completion"
     
     headers = {
@@ -29,17 +29,15 @@ def ask_yandex_gpt(prompt):
     }
     
     response = requests.post(url, headers=headers, json=body)
-    data = response.json()
-    
-    # Достаём только текст из ответа
+    return response.json()
+
+def ask_yandex_gpt(prompt):
+    """Отправляем запрос и возвращаем текст ответа"""
+    data = ask_yandex_gpt_raw(prompt)
     return data["result"]["alternatives"][0]["message"]["text"]
 
 
 def is_message_relevant(message_text, user_prompt):
-    """
-    Спрашиваем GPT: подходит ли сообщение под запрос пользователя?
-    Возвращает True или False
-    """
     prompt = f"""Ты помощник для фильтрации сообщений. 
 Пользователь ищет сообщения по теме: "{user_prompt}"
 
@@ -47,8 +45,20 @@ def is_message_relevant(message_text, user_prompt):
 
 Ответь ТОЛЬКО одним словом: ДА (если сообщение подходит) или НЕТ (если не подходит)."""
 
-    answer = ask_yandex_gpt(prompt)
-    return "ДА" in answer.upper()
+    try:
+        data = ask_yandex_gpt_raw(prompt)
+        print(f"  YandexGPT ответ: {data}")
+        
+        # Проверяем на ошибку
+        if "error" in data:
+            print(f"  ⚠️ Ошибка YandexGPT: {data['error']}")
+            return False
+            
+        answer = data["result"]["alternatives"][0]["message"]["text"]
+        return "ДА" in answer.upper()
+    except Exception as e:
+        print(f"  ⚠️ Ошибка is_message_relevant: {e}")
+        return False
 
 
 if __name__ == "__main__":
