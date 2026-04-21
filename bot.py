@@ -8,6 +8,7 @@ from contextlib import asynccontextmanager
 import threading
 from worker import check_and_notify
 import time
+import json
 
 load_dotenv()
 
@@ -39,8 +40,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+
 def send_message(user_id, text, dialog_id=None, chat_id=None, keyboard=None):
-    """Отправляем сообщение от имени бота с опциональными кнопками"""
     url = f"{WEBHOOK_URL}imbot.message.add"
     params = {
         "BOT_ID": BOT_ID,
@@ -49,9 +50,8 @@ def send_message(user_id, text, dialog_id=None, chat_id=None, keyboard=None):
         "MESSAGE": text
     }
     
-    # Добавляем кнопки если они переданы
     if keyboard:
-        params["KEYBOARD"] = keyboard
+        params["KEYBOARD"] = json.dumps(keyboard)
     
     print(f"  📤 Отправляем в DIALOG_ID={params['DIALOG_ID']}")
     response = requests.post(url, json=params)
@@ -117,14 +117,12 @@ def handle_command(text, user_id, dialog_id=None, chat_id=None):
             send_message(user_id, "❌ Неверный формат.\nИспользуй: /delete <номер>", dialog_id, chat_id)
 
     elif text.startswith("/help") or text.startswith("/start"):
-        keyboard = {
-            "BUTTONS": [
-                [
-                    {"TEXT": "📋 Мои подписки", "COMMAND": "/list"},
-                    {"TEXT": "🗑 Удалить подписку", "COMMAND": "/delete"}
-                ]
-            ]
-        }
+        keyboard = [
+        [
+            {"TEXT": "📋 Мои подписки", "COMMAND": "/list", "ACTION": "COMMAND"},
+            {"TEXT": "🗑 Удалить", "COMMAND": "/delete", "ACTION": "COMMAND"}
+        ]
+    ]
         send_message(user_id,
             "🤖 AI Search Bot\n\n"
             "Я слежу за сообщениями в Битрикс24 и уведомляю тебя когда появляется что-то важное.\n\n"
