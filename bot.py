@@ -39,8 +39,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-def send_message(user_id, text, dialog_id=None, chat_id=None):
-    """Отправляем сообщение от имени бота"""
+def send_message(user_id, text, dialog_id=None, chat_id=None, keyboard=None):
+    """Отправляем сообщение от имени бота с опциональными кнопками"""
     url = f"{WEBHOOK_URL}imbot.message.add"
     params = {
         "BOT_ID": BOT_ID,
@@ -48,8 +48,13 @@ def send_message(user_id, text, dialog_id=None, chat_id=None):
         "DIALOG_ID": f"chat{chat_id}" if chat_id else BOT_ID,
         "MESSAGE": text
     }
+    
+    # Добавляем кнопки если они переданы
+    if keyboard:
+        params["KEYBOARD"] = keyboard
+    
     print(f"  📤 Отправляем в DIALOG_ID={params['DIALOG_ID']}")
-    response = requests.get(url, params=params)
+    response = requests.post(url, json=params)
     result = response.json()
     print(f"  📤 Ответ: {result}")
     return result
@@ -112,14 +117,24 @@ def handle_command(text, user_id, dialog_id=None, chat_id=None):
             send_message(user_id, "❌ Неверный формат.\nИспользуй: /delete <номер>", dialog_id, chat_id)
 
     elif text.startswith("/help") or text.startswith("/start"):
+        keyboard = {
+            "BUTTONS": [
+                [
+                    {"TEXT": "📋 Мои подписки", "COMMAND": "/list"},
+                    {"TEXT": "🗑 Удалить подписку", "COMMAND": "/delete"}
+                ]
+            ]
+        }
         send_message(user_id,
             "🤖 AI Search Bot\n\n"
+            "Я слежу за сообщениями в Битрикс24 и уведомляю тебя когда появляется что-то важное.\n\n"
             "Команды:\n"
             "/subscribe <тема> — подписаться\n"
             "/list — мои подписки\n"
-            "/delete — удалить подписку\n"
+            "/delete <номер> — удалить подписку\n"
             "/help — помощь",
-            dialog_id, chat_id
+            dialog_id, chat_id,
+            keyboard=keyboard
         )
 
     else:
