@@ -131,6 +131,14 @@ def get_new_messages(since_id):
     conn.close()
     return rows
 
+def delete_subscription(sub_id):
+    """Удаляем подписку по её ID"""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM subscriptions WHERE id = ?", (sub_id,))
+    conn.commit()
+    conn.close()
+
 if __name__ == "__main__":
     init_db()
     print("\nТекущие сообщения в БД:")
