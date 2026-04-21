@@ -118,11 +118,11 @@ def handle_command(text, user_id, dialog_id=None, chat_id=None):
 
     elif text.startswith("/help") or text.startswith("/start"):
         keyboard = [
-        [
+            [
             {"TEXT": "📋 Мои подписки", "COMMAND": "/list", "ACTION": "COMMAND"},
             {"TEXT": "🗑 Удалить", "COMMAND": "/delete", "ACTION": "COMMAND"}
+            ]
         ]
-    ]
         send_message(user_id,
             "🤖 AI Search Bot\n\n"
             "Я слежу за сообщениями в Битрикс24 и уведомляю тебя когда появляется что-то важное.\n\n"
