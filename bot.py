@@ -51,7 +51,10 @@ def send_message(user_id, text, dialog_id=None, chat_id=None, keyboard=None):
     }
     
     if keyboard:
-        params["KEYBOARD"] = json.dumps(keyboard)
+        # Правильный формат — KEYBOARD содержит BUTTONS
+        params["KEYBOARD"] = json.dumps({
+            "BUTTONS": keyboard
+        })
     
     print(f"  📤 Отправляем в DIALOG_ID={params['DIALOG_ID']}")
     response = requests.post(url, json=params)
@@ -119,18 +122,29 @@ def handle_command(text, user_id, dialog_id=None, chat_id=None):
     elif text.startswith("/help") or text.startswith("/start"):
         keyboard = [
             [
-                {"TEXT": "📋 Мои подписки", "COMMAND": "/list", "ACTION": "COMMAND"},
-                {"TEXT": "🗑 Удалить", "COMMAND": "/delete", "ACTION": "COMMAND"}
+                {
+                    "TEXT": "📋 Мои подписки",
+                    "ACTION": "PUT",
+                    "ACTION_VALUE": "/list"
+                },
+                {
+                    "TEXT": "🗑 Удалить подписку",
+                    "ACTION": "PUT",
+                    "ACTION_VALUE": "/delete"
+                }
+            ],
+            [
+                {
+                    "TEXT": "➕ Подписаться",
+                    "ACTION": "PUT",
+                    "ACTION_VALUE": "/subscribe "
+                }
             ]
         ]
         send_message(user_id,
             "🤖 AI Search Bot\n\n"
             "Я слежу за сообщениями в Битрикс24 и уведомляю тебя когда появляется что-то важное.\n\n"
-            "Команды:\n"
-            "/subscribe <тема> — подписаться\n"
-            "/list — мои подписки\n"
-            "/delete <номер> — удалить подписку\n"
-            "/help — помощь",
+            "Нажми кнопку или введи команду вручную:",
             dialog_id, chat_id,
             keyboard=keyboard
         )
