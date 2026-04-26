@@ -120,17 +120,14 @@ def handle_command(text, user_id, dialog_id=None, chat_id=None):
             send_message(user_id, "❌ Неверный формат.\nИспользуй: /delete <номер>", dialog_id, chat_id)
 
     elif text.startswith("/help") or text.startswith("/start"):
-        keyboard = [
-            {"TEXT": "📋 Мои подписки", "ACTION": "PUT", "ACTION_VALUE": "/list"},
-            {"TEXT": "🗑 Удалить", "ACTION": "PUT", "ACTION_VALUE": "/delete"},
-            {"TEXT": "➕ Подписаться", "ACTION": "PUT", "ACTION_VALUE": "/subscribe "}
-        ]
         send_message(user_id,
             "🤖 AI Search Bot\n\n"
             "Я слежу за сообщениями в Битрикс24 и уведомляю тебя когда появляется что-то важное.\n\n"
-            "Нажми кнопку или введи команду вручную:",
-            dialog_id, chat_id,
-            keyboard=keyboard
+            "Нажми на команду:\n"
+            "[send=/list]📋 Мои подписки[/send]\n"
+            "[send=/delete]🗑 Удалить подписку[/send]\n"
+            "[send=/subscribe ]➕ Подписаться на тему[/send]",
+            dialog_id, chat_id
         )
 
     else:
