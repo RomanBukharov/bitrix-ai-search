@@ -20,6 +20,7 @@ httpx-sse==0.4.3
 idna==3.11
 packaging==26.1
 protobuf==6.33.6
+psycopg2-binary==2.9.12
 pycparser==3.0
 pydantic==2.13.2
 pydantic_core==2.46.2
