@@ -135,7 +135,6 @@ def handle_command(text, user_id, dialog_id=None, chat_id=None):
 
 @app.post("/webhook")
 async def handle_webhook(request: Request):
-    """Принимаем вебхук от Битрикс24"""
     try:
         form_data = await request.form()
         data = dict(form_data)
@@ -143,14 +142,24 @@ async def handle_webhook(request: Request):
         print(f"⚠️ Ошибка парсинга: {e}")
         return JSONResponse({"status": "ok"})
 
+    event = data.get("event", "")
     message_text = data.get("data[PARAMS][MESSAGE]", "")
     user_id = data.get("data[PARAMS][FROM_USER_ID]")
     dialog_id = data.get("data[PARAMS][DIALOG_ID]")
     chat_id = data.get("data[PARAMS][TO_CHAT_ID]")
 
-    print(f"  user_id={user_id}, dialog_id={dialog_id}, chat_id={chat_id}, текст={message_text}")
+    # Пользователь впервые открыл чат с ботом
+    if event == "ONIMBOTJOINCHAT":
+        user_id = data.get("data[PARAMS][USER_ID]")
+        chat_id = data.get("data[PARAMS][CHAT_ID]")
+        send_message(user_id,
+            "👋 Привет! Я AI Search Bot.\n\n"
+            "Слежу за сообщениями в Битрикс24 и уведомляю тебя когда появляется что-то важное.\n\n"
+            "Напиши [send=/help]помощь[/send] чтобы посмотреть список команд.",
+            None, chat_id
+        )
 
-    if message_text and message_text.startswith("/"):
+    elif message_text and message_text.startswith("/"):
         handle_command(message_text, user_id, dialog_id, chat_id)
 
     return JSONResponse({"status": "ok"})
