@@ -43,6 +43,8 @@ app = FastAPI(lifespan=lifespan)
 
 def send_message(user_id, text, dialog_id=None, chat_id=None, keyboard=None):
     url = f"{WEBHOOK_URL}imbot.message.add"
+    
+    # Собираем params как обычный словарь без json.dumps
     params = {
         "BOT_ID": BOT_ID,
         "CLIENT_ID": CLIENT_ID,
@@ -51,13 +53,11 @@ def send_message(user_id, text, dialog_id=None, chat_id=None, keyboard=None):
     }
     
     if keyboard:
-        # Правильный формат — KEYBOARD содержит BUTTONS
-        params["KEYBOARD"] = json.dumps({
-            "BUTTONS": keyboard
-        })
+        params["KEYBOARD"] = keyboard  # передаём как есть, без json.dumps
     
     print(f"  📤 Отправляем в DIALOG_ID={params['DIALOG_ID']}")
-    response = requests.post(url, json=params)
+    # Используем GET с params вместо POST с json
+    response = requests.get(url, params=params)
     result = response.json()
     print(f"  📤 Ответ: {result}")
     return result
@@ -121,25 +121,9 @@ def handle_command(text, user_id, dialog_id=None, chat_id=None):
 
     elif text.startswith("/help") or text.startswith("/start"):
         keyboard = [
-            [
-                {
-                    "TEXT": "📋 Мои подписки",
-                    "ACTION": "PUT",
-                    "ACTION_VALUE": "/list"
-                },
-                {
-                    "TEXT": "🗑 Удалить подписку",
-                    "ACTION": "PUT",
-                    "ACTION_VALUE": "/delete"
-                }
-            ],
-            [
-                {
-                    "TEXT": "➕ Подписаться",
-                    "ACTION": "PUT",
-                    "ACTION_VALUE": "/subscribe "
-                }
-            ]
+            {"TEXT": "📋 Мои подписки", "ACTION": "PUT", "ACTION_VALUE": "/list"},
+            {"TEXT": "🗑 Удалить", "ACTION": "PUT", "ACTION_VALUE": "/delete"},
+            {"TEXT": "➕ Подписаться", "ACTION": "PUT", "ACTION_VALUE": "/subscribe "}
         ]
         send_message(user_id,
             "🤖 AI Search Bot\n\n"
