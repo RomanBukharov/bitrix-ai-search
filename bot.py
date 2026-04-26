@@ -155,7 +155,7 @@ async def handle_webhook(request: Request):
         send_message(user_id,
             "👋 Привет! Я AI Search Bot.\n\n"
             "Слежу за сообщениями в Битрикс24 и уведомляю тебя когда появляется что-то важное.\n\n"
-            "Напиши [send=/help]помощь[/send] чтобы посмотреть список команд.",
+            "Напиши [send=/help]/help[/send] чтобы посмотреть список команд.",
             None, chat_id
         )
 
