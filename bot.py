@@ -31,7 +31,7 @@ def run_worker():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """При старте сервера — создаём БД и запускаем фоновый мониторинг"""
+    #При старте сервера создаём БД и запускаем воркер
     init_db()
     init_subscriptions_table()
     worker_thread = threading.Thread(target=run_worker, daemon=True)
@@ -44,7 +44,6 @@ app = FastAPI(lifespan=lifespan)
 def send_message(user_id, text, dialog_id=None, chat_id=None, keyboard=None):
     url = f"{WEBHOOK_URL}imbot.message.add"
     
-    # Собираем params как обычный словарь без json.dumps
     params = {
         "BOT_ID": BOT_ID,
         "CLIENT_ID": CLIENT_ID,
@@ -53,13 +52,15 @@ def send_message(user_id, text, dialog_id=None, chat_id=None, keyboard=None):
     }
     
     if keyboard:
-        params["KEYBOARD"] = keyboard  # передаём как есть, без json.dumps
+        params["KEYBOARD"] = json.dumps(keyboard)
     
-    print(f"  📤 Отправляем в DIALOG_ID={params['DIALOG_ID']}")
-    # Используем GET с params вместо POST с json
-    response = requests.get(url, params=params)
+    print(f"  📤 Отправляем params: {params}")
+    
+    # Пробуем POST с json
+    response = requests.post(url, json=params)
     result = response.json()
-    print(f"  📤 Ответ: {result}")
+    print(f"  📤 Ответ POST+json: {result}")
+    
     return result
 
 def handle_command(text, user_id, dialog_id=None, chat_id=None):
@@ -120,14 +121,29 @@ def handle_command(text, user_id, dialog_id=None, chat_id=None):
             send_message(user_id, "❌ Неверный формат.\nИспользуй: /delete <номер>", dialog_id, chat_id)
 
     elif text.startswith("/help") or text.startswith("/start"):
+        keyboard = [
+            {
+                "TEXT": "📋 Мои подписки",
+                "ACTION": "PUT",
+                "ACTION_VALUE": "/list"
+            },
+            {
+                "TEXT": "🗑 Удалить подписку",
+                "ACTION": "PUT",
+                "ACTION_VALUE": "/delete"
+            },
+            {
+                "TEXT": "➕ Подписаться на тему",
+                "ACTION": "PUT",
+                "ACTION_VALUE": "/subscribe "
+            }
+        ]
         send_message(user_id,
             "🤖 AI Search Bot\n\n"
             "Я слежу за сообщениями в Битрикс24 и уведомляю тебя когда появляется что-то важное.\n\n"
-            "Нажми на команду:\n"
-            "[send=/list]📋 Мои подписки[/send]\n"
-            "[send=/delete]🗑 Удалить подписку[/send]\n"
-            "[send=/subscribe ]➕ Подписаться на тему[/send]",
-            dialog_id, chat_id
+            "Выбери действие:",
+            dialog_id, chat_id,
+            keyboard=keyboard
         )
 
     else:
@@ -139,7 +155,7 @@ async def handle_webhook(request: Request):
         form_data = await request.form()
         data = dict(form_data)
     except Exception as e:
-        print(f"⚠️ Ошибка парсинга: {e}")
+        print(f"Ошибка парсинга: {e}")
         return JSONResponse({"status": "ok"})
 
     event = data.get("event", "")
