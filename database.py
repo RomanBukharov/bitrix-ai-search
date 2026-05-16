@@ -8,11 +8,11 @@ load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 def get_conn():
-    """Получаем соединение с PostgreSQL"""
+    # Получаем соединение с PostgreSQL
     return psycopg2.connect(DATABASE_URL)
 
 def init_db():
-    """Создаём таблицу сообщений"""
+    # Создаём таблицу сообщений
     conn = get_conn()
     cursor = conn.cursor()
     cursor.execute("""
@@ -29,10 +29,10 @@ def init_db():
     """)
     conn.commit()
     conn.close()
-    print("✅ База данных готова")
+    print("База данных готова")
 
 def init_subscriptions_table():
-    """Создаём таблицу подписок"""
+    # Создаём таблицу подписок
     conn = get_conn()
     cursor = conn.cursor()
     cursor.execute("""
@@ -47,7 +47,7 @@ def init_subscriptions_table():
     conn.close()
 
 def save_message(bitrix_id, chat_id, chat_title, author_id, text, date):
-    """Сохраняем сообщение без дублей"""
+    # Сохраняем сообщение без дублей
     conn = get_conn()
     cursor = conn.cursor()
     try:
@@ -58,16 +58,16 @@ def save_message(bitrix_id, chat_id, chat_title, author_id, text, date):
         """, (bitrix_id, chat_id, chat_title, author_id, text, date))
         conn.commit()
         if cursor.rowcount > 0:
-            print(f"💾 Сохранено: [{chat_title}] {text[:50]}...")
+            print(f" + Сохранено: [{chat_title}] {text[:50]}...")
             return True
         else:
-            print(f"⏭️  Уже есть в БД: {bitrix_id}")
+            print(f" - Уже есть в БД: {bitrix_id}")
             return False
     finally:
         conn.close()
 
 def get_all_messages():
-    """Все сообщения из БД"""
+    # Все сообщения из БД
     conn = get_conn()
     cursor = conn.cursor()
     cursor.execute("""
@@ -79,7 +79,7 @@ def get_all_messages():
     return rows
 
 def get_last_message_id():
-    """ID последнего сообщения"""
+    # ID последнего сообщения
     conn = get_conn()
     cursor = conn.cursor()
     cursor.execute("SELECT MAX(bitrix_id) FROM messages")
@@ -88,7 +88,7 @@ def get_last_message_id():
     return result or 0
 
 def get_new_messages(since_id):
-    """Сообщения новее чем since_id"""
+    # Сообщения новее чем since_id
     conn = get_conn()
     cursor = conn.cursor()
     cursor.execute("""
@@ -101,7 +101,7 @@ def get_new_messages(since_id):
     return rows
 
 def add_subscription(user_id, prompt):
-    """Добавляем подписку"""
+    # Добавляем подписку
     conn = get_conn()
     cursor = conn.cursor()
     cursor.execute("""
@@ -109,10 +109,10 @@ def add_subscription(user_id, prompt):
     """, (user_id, prompt))
     conn.commit()
     conn.close()
-    print(f"✅ Подписка добавлена: '{prompt}'")
+    print(f"Подписка добавлена: '{prompt}'")
 
 def get_all_subscriptions():
-    """Все подписки"""
+    # Все подписки
     conn = get_conn()
     cursor = conn.cursor()
     cursor.execute("SELECT id, user_id, prompt FROM subscriptions")
@@ -121,10 +121,10 @@ def get_all_subscriptions():
     return rows
 
 def delete_subscription(sub_id):
-    """Удаляем подписку по ID"""
+    # Удаляем подписку по ID
     conn = get_conn()
     cursor = conn.cursor()
     cursor.execute("DELETE FROM subscriptions WHERE id = %s", (sub_id,))
     conn.commit()
     conn.close()
-    print(f"✅ Подписка {sub_id} удалена")
+    print(f"Подписка {sub_id} удалена")

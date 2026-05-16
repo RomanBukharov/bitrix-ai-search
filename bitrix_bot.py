@@ -197,5 +197,5 @@ if __name__ == "__main__":
         try:
             poll_bot_messages()
         except Exception as e:
-            print(f"⚠️ Ошибка: {e}")
+            print(f"Ошибка: {e}")
         time.sleep(5)

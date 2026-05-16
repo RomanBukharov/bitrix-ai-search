@@ -12,7 +12,7 @@ def get_recent_chats():
     return response.json()
 
 def collect_and_save_messages():
-    """Собираем сообщения из Битрикс24 и сохраняем в БД"""
+    # Собираем сообщения из Битрикс24 и сохраняем в БД
     data = get_recent_chats()
     items = data.get("result", {}).get("items", [])
     
@@ -38,7 +38,7 @@ def collect_and_save_messages():
         if result:
             saved += 1
     
-    print(f"\n✅ Готово! Сохранено новых сообщений: {saved}")
+    print(f"\nГотово. Сохранено новых сообщений: {saved}")
 
 def get_all_messages_from_chat(chat_id, limit=50):
     """Получаем все сообщения из конкретного чата"""

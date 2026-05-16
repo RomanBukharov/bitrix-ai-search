@@ -21,12 +21,12 @@ def send_notification(user_id, chat_title, text, prompt, date, author_name, chat
     """Отправляем уведомление с именем отправителя и временем"""
     url = f"{WEBHOOK_URL}imbot.message.add"
     message = (
-        f"🔔 Найдено новое сообщение!\n\n"
-        f"📌 Твой промпт: «{prompt}»\n"
-        f"💬 Чат: {chat_title}\n"
-        f"👤 Отправитель: {author_name}\n"
-        f"📝 Сообщение: {text}\n"
-        f"🕐 Время: {date}"
+        f"Найдено новое сообщение!\n\n"
+        f"Твой промпт: «{prompt}»\n"
+        f"Чат: {chat_title}\n"
+        f"Отправитель: {author_name}\n"
+        f"Сообщение: {text}\n"
+        f"Время: {date}"
     )
     params = {
         "BOT_ID": BOT_ID,
@@ -35,7 +35,7 @@ def send_notification(user_id, chat_title, text, prompt, date, author_name, chat
         "MESSAGE": message
     }
     response = requests.get(url, params=params)
-    print(f"  📤 Уведомление отправлено: {response.json()}")
+    print(f"Уведомление отправлено: {response.json()}")
 
 def get_user_name(user_id):
     """Получаем имя пользователя по его ID"""
@@ -76,20 +76,20 @@ def check_and_notify():
 
             print(f"  Проверяем: '{text[:30]}' vs '{prompt}'")
             if is_message_relevant(text, prompt):
-                print(f"  ✅ Совпадение! Уведомляем {user_id}")
+                print(f"Совпадение! Уведомляем {user_id}")
                 send_notification(user_id, chat_title, text, prompt, date, author_name)
 
 if __name__ == "__main__":
     init_db()
     init_subscriptions_table()
 
-    print("👀 Worker запущен!")
-    print(f"⏱️  Проверка каждые {CHECK_INTERVAL} секунд")
+    print("Worker запущен!")
+    print(f"Проверка каждые {CHECK_INTERVAL} секунд")
 
     while True:
-        print(f"\n🔄 Проверяем новые сообщения...")
+        print(f"\nПроверяем новые сообщения...")
         try:
             check_and_notify()
         except Exception as e:
-            print(f"⚠️ Ошибка: {e}")
+            print(f"Ошибка: {e}")
         time.sleep(CHECK_INTERVAL)

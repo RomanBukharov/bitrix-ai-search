@@ -71,10 +71,10 @@ def handle_command(text, user_id, dialog_id=None, chat_id=None):
     if text.startswith("/subscribe"):
         prompt = text.replace("/subscribe", "").strip()
         if not prompt:
-            send_message(user_id, "❌ Укажи тему. Пример:\n/subscribe дедлайны и обязательства", dialog_id, chat_id)
+            send_message(user_id, "Укажи тему. Пример:\n/subscribe дедлайны и обязательства", dialog_id, chat_id)
             return
         add_subscription(user_id=str(user_id), prompt=prompt)
-        send_message(user_id, f"✅ Подписка оформлена!\nБуду уведомлять о сообщениях по теме:\n«{prompt}»", dialog_id, chat_id)
+        send_message(user_id, f"Подписка оформлена!\nБуду уведомлять о сообщениях по теме:\n«{prompt}»", dialog_id, chat_id)
 
     elif text.startswith("/list"):
         subs = get_all_subscriptions()
@@ -82,7 +82,7 @@ def handle_command(text, user_id, dialog_id=None, chat_id=None):
         if not user_subs:
             send_message(user_id, "У тебя пока нет подписок.\nИспользуй: /subscribe <тема>", dialog_id, chat_id)
         else:
-            result = "📋 Твои подписки:\n\n"
+            result = "Твои подписки:\n\n"
             for i, sub in enumerate(user_subs, 1):
                 result += f"{i}. {sub[2]}\n"
             send_message(user_id, result, dialog_id, chat_id)
@@ -98,7 +98,7 @@ def handle_command(text, user_id, dialog_id=None, chat_id=None):
                 send_message(user_id, "У тебя нет подписок для удаления.", dialog_id, chat_id)
                 return
 
-            result = "📋 Выбери номер для удаления:\n\n"
+            result = "Выбери номер для удаления:\n\n"
             for i, sub in enumerate(user_subs, 1):
                 result += f"{i}. {sub[2]}\n"
             result += "\nНапиши: /delete <номер>\nНапример: /delete 1"
@@ -110,36 +110,36 @@ def handle_command(text, user_id, dialog_id=None, chat_id=None):
             user_subs = [s for s in subs if str(s[1]) == str(user_id)]
 
             if index < 0 or index >= len(user_subs):
-                send_message(user_id, "❌ Неверный номер.\nНапиши /delete чтобы увидеть список.", dialog_id, chat_id)
+                send_message(user_id, "Неверный номер.\nНапиши /delete чтобы увидеть список.", dialog_id, chat_id)
                 return
 
             sub_to_delete = user_subs[index]
             delete_subscription(sub_to_delete[0])
-            send_message(user_id, f"✅ Подписка удалена:\n«{sub_to_delete[2]}»", dialog_id, chat_id)
+            send_message(user_id, f"Подписка удалена:\n«{sub_to_delete[2]}»", dialog_id, chat_id)
 
         else:
-            send_message(user_id, "❌ Неверный формат.\nИспользуй: /delete <номер>", dialog_id, chat_id)
+            send_message(user_id, "Неверный формат.\nИспользуй: /delete <номер>", dialog_id, chat_id)
 
     elif text.startswith("/help") or text.startswith("/start"):
         keyboard = [
             {
-                "TEXT": "📋 Мои подписки",
+                "TEXT": "Мои подписки",
                 "ACTION": "PUT",
                 "ACTION_VALUE": "/list"
             },
             {
-                "TEXT": "🗑 Удалить подписку",
+                "TEXT": " - Удалить подписку",
                 "ACTION": "PUT",
                 "ACTION_VALUE": "/delete"
             },
             {
-                "TEXT": "➕ Подписаться на тему",
+                "TEXT": " + Подписаться на тему",
                 "ACTION": "PUT",
                 "ACTION_VALUE": "/subscribe "
             }
         ]
         send_message(user_id,
-            "🤖 AI Search Bot\n\n"
+            "AI Search Bot\n\n"
             "Я слежу за сообщениями в Битрикс24 и уведомляю тебя когда появляется что-то важное.\n\n"
             "Выбери действие:",
             dialog_id, chat_id,
@@ -147,7 +147,7 @@ def handle_command(text, user_id, dialog_id=None, chat_id=None):
         )
 
     else:
-        send_message(user_id, "Не понимаю команду. Напиши /help", dialog_id, chat_id)
+        send_message(user_id, "Не понимаю команду. Напиши '/help' для просмтра доступных команд", dialog_id, chat_id)
 
 @app.post("/webhook")
 async def handle_webhook(request: Request):
@@ -169,7 +169,7 @@ async def handle_webhook(request: Request):
         user_id = data.get("data[PARAMS][USER_ID]")
         chat_id = data.get("data[PARAMS][CHAT_ID]")
         send_message(user_id,
-            "👋 Привет! Я AI Search Bot.\n\n"
+            "Привет! Я AI Search Bot.\n\n"
             "Слежу за сообщениями в Битрикс24 и уведомляю тебя когда появляется что-то важное.\n\n"
             "Напиши [send=/help]/help[/send] чтобы посмотреть список команд.",
             None, chat_id
