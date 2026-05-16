@@ -59,7 +59,7 @@ def send_message(user_id, text, dialog_id=None, chat_id=None, keyboard=None):
     # Пробуем POST с json
     response = requests.post(url, json=params)
     result = response.json()
-    print(f"  📤 Ответ POST+json: {result}")
+    print(f" Ответ POST+json: {result}")
     
     return result
 
@@ -84,7 +84,7 @@ def handle_command(text, user_id, dialog_id=None, chat_id=None):
         else:
             result = "Твои подписки:\n\n"
             for i, sub in enumerate(user_subs, 1):
-                result += f"{i}. {sub[2]}\n"
+                result += f"{i}. {sub[3]}\n"
             send_message(user_id, result, dialog_id, chat_id)
 
     elif text.startswith("/delete"):
@@ -100,7 +100,7 @@ def handle_command(text, user_id, dialog_id=None, chat_id=None):
 
             result = "Выбери номер для удаления:\n\n"
             for i, sub in enumerate(user_subs, 1):
-                result += f"{i}. {sub[2]}\n"
+                result += f"{i}. {sub[3]}\n"
             result += "\nНапиши: /delete <номер>\nНапример: /delete 1"
             send_message(user_id, result, dialog_id, chat_id)
 
