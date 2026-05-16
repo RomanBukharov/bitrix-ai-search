@@ -54,7 +54,7 @@ def send_message(user_id, text, dialog_id=None, chat_id=None, keyboard=None):
     if keyboard:
         params["KEYBOARD"] = json.dumps(keyboard)
     
-    print(f"  📤 Отправляем params: {params}")
+    print(f" Отправляем params: {params}")
     
     # Пробуем POST с json
     response = requests.post(url, json=params)
@@ -66,14 +66,14 @@ def send_message(user_id, text, dialog_id=None, chat_id=None, keyboard=None):
 def handle_command(text, user_id, dialog_id=None, chat_id=None):
     """Обрабатываем команды пользователя"""
     text = text.strip()
-    print(f"  🔧 Команда: '{text}' от {user_id}, dialog={dialog_id}")
+    print(f" Команда: '{text}' от {user_id}, dialog={dialog_id}")
 
     if text.startswith("/subscribe"):
         prompt = text.replace("/subscribe", "").strip()
         if not prompt:
             send_message(user_id, "Укажи тему. Пример:\n/subscribe дедлайны и обязательства", dialog_id, chat_id)
             return
-        add_subscription(user_id=str(user_id), prompt=prompt)
+        add_subscription(user_id=str(user_id), prompt=prompt, chat_id=chat_id)
         send_message(user_id, f"Подписка оформлена!\nБуду уведомлять о сообщениях по теме:\n«{prompt}»", dialog_id, chat_id)
 
     elif text.startswith("/list"):

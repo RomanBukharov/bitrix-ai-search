@@ -72,12 +72,11 @@ def check_and_notify():
         author_name = get_user_name(author_id)
 
         for sub in subscriptions:
-            sub_id, user_id, prompt = sub
+            sub_id, user_id, sub_chat_id, prompt = sub  # добавили sub_chat_id
 
-            print(f"  Проверяем: '{text[:30]}' vs '{prompt}'")
             if is_message_relevant(text, prompt):
-                print(f"Совпадение! Уведомляем {user_id}")
-                send_notification(user_id, chat_title, text, prompt, date, author_name)
+                print(f" Совпадение! Уведомляем {user_id}")
+                send_notification(user_id, chat_title, text, prompt, date, author_name, chat_id=sub_chat_id)
 
 if __name__ == "__main__":
     init_db()

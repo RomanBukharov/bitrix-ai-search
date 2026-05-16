@@ -32,13 +32,13 @@ def init_db():
     print("База данных готова")
 
 def init_subscriptions_table():
-    # Создаём таблицу подписок
     conn = get_conn()
     cursor = conn.cursor()
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS subscriptions (
             id         SERIAL PRIMARY KEY,
             user_id    TEXT,
+            chat_id    TEXT,
             prompt     TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
@@ -99,23 +99,21 @@ def get_new_messages(since_id):
     rows = cursor.fetchall()
     conn.close()
     return rows
-
-def add_subscription(user_id, prompt):
-    # Добавляем подписку
+def add_subscription(user_id, prompt, chat_id):
     conn = get_conn()
     cursor = conn.cursor()
     cursor.execute("""
-        INSERT INTO subscriptions (user_id, prompt) VALUES (%s, %s)
-    """, (user_id, prompt))
+        INSERT INTO subscriptions (user_id, chat_id, prompt)
+        VALUES (%s, %s, %s)
+    """, (user_id, chat_id, prompt))
     conn.commit()
     conn.close()
     print(f"Подписка добавлена: '{prompt}'")
 
 def get_all_subscriptions():
-    # Все подписки
     conn = get_conn()
     cursor = conn.cursor()
-    cursor.execute("SELECT id, user_id, prompt FROM subscriptions")
+    cursor.execute("SELECT id, user_id, chat_id, prompt FROM subscriptions")
     rows = cursor.fetchall()
     conn.close()
     return rows
