@@ -20,13 +20,13 @@ def run_worker():
     """Запускаем мониторинг в фоновом потоке параллельно с веб-сервером"""
     init_db()
     init_subscriptions_table()
-    print("👀 Worker запущен в фоне")
+    print("Worker запущен в фоне")
     while True:
         try:
             print("🔄 Проверяем новые сообщения...")
             check_and_notify()
         except Exception as e:
-            print(f"⚠️ Ошибка worker: {e}")
+            print(f"Ошибка worker: {e}")
         time.sleep(60)
 
 @asynccontextmanager
