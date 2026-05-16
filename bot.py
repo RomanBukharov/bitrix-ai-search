@@ -23,7 +23,7 @@ def run_worker():
     print("Worker запущен в фоне")
     while True:
         try:
-            print("🔄 Проверяем новые сообщения...")
+            print("Проверяем новые сообщения...")
             check_and_notify()
         except Exception as e:
             print(f"Ошибка worker: {e}")
