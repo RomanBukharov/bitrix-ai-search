@@ -116,6 +116,7 @@ def handle_command(text, user_id, dialog_id=None, chat_id=None):
             sub_to_delete = user_subs[index]
             delete_subscription(sub_to_delete[0])
             send_message(user_id, f"Подписка удалена:\n«{sub_to_delete[3]}»", dialog_id, chat_id)
+            
 
         else:
             send_message(user_id, "Неверный формат.\nИспользуй: /delete <номер>", dialog_id, chat_id)
