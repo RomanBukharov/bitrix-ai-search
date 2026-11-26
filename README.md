@@ -127,7 +127,7 @@ python3 search.py
 
 Воркер работает в режимах сбора сообщений при запуске бота и мониторинге новых сообщений (схема 1 и 2 соответственно):
 ![](images/get_massages_alg.png)
-![](images/monitorig_schema.png)
+![](images/monitorig_schema2.png)
 
 Алгоритм интеллектуальной обработки сообщений работает по следующему алгоритму:
 ![](images/semant_alg.png)
