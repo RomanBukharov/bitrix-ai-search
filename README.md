@@ -13,8 +13,6 @@
 ## Установка
 
 ```bash
-python3 -m venv venv
-source venv/bin/activate
 pip install -r requirements.txt
 ```
 
@@ -34,7 +32,7 @@ YANDEX_OAUTH_TOKEN=your_yandex_oauth_token
 DATABASE_URL=postgresql://user:password@localhost:5432/bitrix_ai_search
 ```
 
-Важно!! : `BITRIX_WEBHOOK_URL` должен заканчиваться на `/`, потому что код добавляет к нему имена методов API, например `imbot.message.add`.
+Важно : `BITRIX_WEBHOOK_URL` должен заканчиваться на `/`, потому что код добавляет к нему имена методов API.
 
 ## База данных
 
@@ -49,47 +47,19 @@ createdb bitrix_ai_search
 - `messages` - сохраненные сообщения из Битрикс24
 - `subscriptions` - подписки пользователей на темы
 
-## Регистрация бота
-
-Если бот еще не зарегистрирован программно, запусти:
-
-```bash
-python3 register_bot.py
-```
-
-Скрипт выведет `BOT_ID`. Добавь его в `.env` как `BITRIX_BOT_ID`.
-
 ## Запуск
 
 Основной вариант для локальной разработки:
 
 ```bash
-uvicorn bot:app --host 0.0.0.0 --port 8000 --reload
-```
-
-Или так:
-
-```bash
 python3 bot.py
-```
-
-После запуска проверь healthcheck:
-
-```bash
-curl http://localhost:8000/
-```
-
-Ожидаемый ответ:
-
-```json
-{"status":"alive","message":"Bitrix AI Search Bot работает!"}
 ```
 
 `bot.py` поднимает FastAPI-сервер и запускает фоновый worker, который раз в минуту проверяет новые сообщения.
 
 ## Webhook для Битрикс24
 
-Локальный `localhost` недоступен Битрикс24 напрямую, поэтому для полноценной проверки нужен публичный URL. Например через ngrok:
+нужен публичный URL. Например через ngrok:
 
 ```bash
 ngrok http 8000
@@ -108,16 +78,6 @@ POST /webhook
 ```
 
 ## Как протестировать
-
-### 1. Проверить переменные окружения
-
-```bash
-python3 check_env.py
-```
-
-Скрипт покажет, что Yandex-переменные читаются из `.env`.
-
-### 2. Проверить отправку сообщения ботом
 
 ```bash
 python3 test_bot_send.py
@@ -148,40 +108,6 @@ python3 search.py
 ```
 
 Скрипт возьмет сообщения из базы и проверит их через YandexGPT по тестовым запросам.
-
-### 6. Проверить команды в Битрикс24
-
-Напиши боту в Битрикс24:
-
-```text
-/help
-```
-
-Основные команды:
-
-```text
-/subscribe дедлайны и обязательства
-/list
-/delete
-/delete 1
-```
-
-После подписки worker будет искать новые сообщения по теме и отправлять уведомления.
-
-## Альтернативный запуск worker
-
-Если нужно запустить только фоновую проверку без FastAPI:
-
-```bash
-python3 worker.py
-```
-
-В продакшен-конфигурации `Procfile` уже разделяет процессы:
-
-```text
-web: uvicorn bot:app --host 0.0.0.0 --port $PORT
-worker: python worker.py
-```
 
 ## Частые проблемы
 
